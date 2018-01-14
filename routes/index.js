@@ -103,8 +103,8 @@ router.get('/wxlogin', function(req, res, next) {
 			console.log('请求PassTicket------->>>>>>>>');
 			console.log(body);
 			var str = body.toString();
-			// if (str.)
-			<ret>0</ret>
+			// // if (str.)
+			// <ret>0</ret>
     	pass_ticket = str.split('<pass_ticket>')[1].split('</pass_ticket>')[0];
     	skey = str.split('<skey>')[1].split('</skey>')[0];
     	sid = str.split('<wxsid>')[1].split('</wxsid>')[0];
