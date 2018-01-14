@@ -10,8 +10,12 @@ router.get('/', function(req, res, next) {
  
 // 增加用户
 //TODO 同时支持get,post
-router.get('/addUser', function(req, res, next) {
-	userDao.add(req, res, next);
+router.get('/register', function(req, res, next) {
+	userDao.register(req, res, next);
+});
+
+router.get('/login', function(req, res, next) {
+	userDao.login(req, res, next);
 });
  
 router.get('/queryAll', function(req, res, next) {

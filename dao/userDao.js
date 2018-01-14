@@ -19,31 +19,59 @@ var jsonWrite = function (res, ret) {
 		res.json(ret);
 	}
 };
- 
+var setCookies = function (res, param) {
+	res.cookie('username', param.name, {})
+	res.cookie('ticket', param.name, {})
+}
 module.exports = {
-	add: function (req, res, next) {
+	register: function (req, res, next) {
 		pool.getConnection(function(err, connection) {
 			// 获取前台页面传过来的参数
 			var param = req.query || req.params;
  
 			// 建立连接，向表中插入值
-			// 'INSERT INTO user(id, name, age) VALUES(0,?,?)',
-			connection.query($sql.insert, [param.name, param.age], function(err, result) {
+			connection.query($sql.addUser, [param.name, param.password], function(err, result) {
 				if(result) {
 					result = {
 						code: 200,
 						msg:'增加成功'
-					};    
+					};
+					setCookies(res, param)
 				}
- 
+				console.log(err, result)
 				// 以json形式，把操作结果返回给前台页面
-				jsonWrite(res, result);
- 
+				res.redirect('/index.html');
 				// 释放连接 
 				connection.release();
 			});
 		});
 	},
+	login:function (req, res, next) {
+		pool.getConnection(function(err, connection) {
+			// 获取前台页面传过来的参数
+			var param = req.query || req.params;
+ 
+			// 建立连接，向表中插入值
+			connection.query($sql.queryUser, [param.name, param.password], function(err, result) {
+				if(result) {
+					result = {
+						code: 200,
+						msg:'登录成功'
+					};
+				} else {
+					result = {
+						code: -2,
+						msg:'登录失败，用户名或密码错误'
+					};   
+				}
+				setCookies(res, param)
+				res.redirect('/index.html');
+				// 释放连接 
+				connection.release();
+			});
+		});
+	},
+	
 	delete: function (req, res, next) {
 		// delete by Id
 		pool.getConnection(function(err, connection) {
