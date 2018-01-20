@@ -131,7 +131,7 @@ router.get('/wxlogin', function(req, res, next) {
 		}, function(error, response, body){
 			console.log('getWxData..........');
 		 	myUserName = body.User.UserName;
-		  statusNotify();
+		  // statusNotify();
 		  getAllUsers();
 		});
 	}
