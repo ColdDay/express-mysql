@@ -53,19 +53,21 @@ module.exports = {
  
 			// 建立连接，向表中插入值
 			connection.query($sql.queryUser, [param.name, param.password], function(err, result) {
-				if(result) {
+				if(result.length) {
 					result = {
 						code: 200,
 						msg:'登录成功'
 					};
+					setCookies(res, param)
+					res.redirect('/index.html');
 				} else {
 					result = {
 						code: -2,
 						msg:'登录失败，用户名或密码错误'
-					};   
+					};
+					res.redirect('/login.html?error=1');
 				}
-				setCookies(res, param)
-				res.redirect('/index.html');
+				
 				// 释放连接 
 				connection.release();
 			});

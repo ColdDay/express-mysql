@@ -4,15 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>登录注册</title>
+  <link rel="shortcut icon" href="images/logo.png" type="image/x-icon">
+  <title>魔法转</title>
   <link rel="stylesheet" href="global.css">
   <script src="tool.js"></script>
 </head>
 
 <body>
+  <div class="header">
+    <img src="images/logo.png" alt="魔法转" class="logo">
+    <span class="logo-text">魔法转</span>
+  </div>
+  <h2>微信扫一扫~群发消息</h2>
   <img src="" id="wxCode">
   <textarea id="msgContent" class="form-control" placeholder="请输入群发内容"></textarea>
   <div class="btn btn-primary" onclick="getWxCode()">获取群发二维码</div>
+  <h4>！！！注意：请告知对方此操作会群发消息</h4>
   <script>
     function getWxCode () {
       var msg = {
