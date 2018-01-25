@@ -173,6 +173,7 @@ router.get('/wxlogin', function(req, res, next) {
 		  	var member = list[i];
 				console.log(member.NickName,member.UserName);
 				// 群发消息要慎重
+				postMsg(myUserName,member.UserName, MSG);
 		  	// if(member.NickName == '北风吹雪') {
 		  	 	// postMsg(myUserName,member.UserName, MSG);
 		   		// break;
