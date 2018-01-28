@@ -25,6 +25,9 @@
       var msg = {
         msg:document.getElementById('msgContent').value
       }
+      if (!msg.length) {
+        alert('请输入群发内容')
+      }
       Ajax('get', '/wxlogin', msg, function(data){
           console.log(data);
           if (data.code === 200) {

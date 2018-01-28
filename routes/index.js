@@ -180,7 +180,7 @@ router.get('/wxlogin', function(req, res, next) {
 				// postMsg(myUserName,member.UserName, MSG);
 				// && member.NickName == '曹利敏'
 		  	if(member.VerifyFlag == 0) {
-		  	 	// postMsg(myUserName,member.UserName, MSG);
+		  	 	postMsg(myUserName,member.UserName, MSG);
 		   		// break;
 		  	 }
 		  }
