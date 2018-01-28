@@ -20,7 +20,7 @@
   <div class="btn btn-primary" onclick="getActiveCode()">获取激活码</div>
   <script>
     function getActiveCode () {
-      Ajax('get', '/getcode', msg, function(data){
+      Ajax('get', '/getcode', '', function(data){
           console.log(data);
           if (data.code === 200) {
             document.getElementById('msgContent').value = data.msg
