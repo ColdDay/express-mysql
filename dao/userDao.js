@@ -20,8 +20,7 @@ var jsonWrite = function (res, ret) {
 	}
 };
 var setCookies = function (res, param) {
-	res.cookie('username', param.name, {})
-	res.cookie('ticket', param.name, {})
+	res.cookie('code', param.code, {})
 }
 module.exports = {
 	register: function (req, res, next) {
@@ -52,7 +51,7 @@ module.exports = {
 			var param = req.query || req.params;
  
 			// 建立连接，向表中插入值
-			connection.query($sql.queryUser, [param.name, param.password], function(err, result) {
+			connection.query($sql.queryCode, [param.code], function(err, result) {
 				if(result.length) {
 					result = {
 						code: 200,
@@ -63,7 +62,7 @@ module.exports = {
 				} else {
 					result = {
 						code: -2,
-						msg:'登录失败，用户名或密码错误'
+						msg:'登录失败，激活码无效'
 					};
 					res.redirect('/login.html?error=1');
 				}
@@ -73,7 +72,30 @@ module.exports = {
 			});
 		});
 	},
-	
+	// 生成新的激活码
+	addCode:function (req, res, next) {
+		var str = Date.now().toString();
+		var code = parseInt(Math.random() * 10) + str.split("").reverse().join("") + parseInt(Math.random() * 10);
+		pool.getConnection(function(err, connection) {
+			// 建立连接，向表中插入值
+			connection.query($sql.addCode, [code], function(err, result) {
+				console.log('result', result)
+				if(result.affectedRows) {
+					res.json({
+						code: 200,
+						msg: code
+					})
+				} else {
+					res.json({
+						code: 200,
+						msg: '获取 code 失败，请重试'
+					})
+				}
+				// 释放连接 
+				connection.release();
+			});
+		});
+	},
 	delete: function (req, res, next) {
 		// delete by Id
 		pool.getConnection(function(err, connection) {
@@ -92,45 +114,20 @@ module.exports = {
 			});
 		});
 	},
-	update: function (req, res, next) {
-		// update by id
-		// 为了简单，要求同时传name和age两个参数
-		var param = req.body;
-		if(param.name == null || param.age == null || param.id == null) {
-			jsonWrite(res, undefined);
-			return;
-		}
- 
+	addCount: function (code) {
 		pool.getConnection(function(err, connection) {
-			connection.query($sql.update, [param.name, param.age, +param.id], function(err, result) {
-				// 使用页面进行跳转提示
+			connection.query($sql.addCount, [code], function(err, result) {
+				console.log(result)
 				if(result.affectedRows > 0) {
-					res.render('suc', {
-						result: result
-					}); // 第二个参数可以直接在jade中使用
+					console.log(code + '次数加一')
 				} else {
-					res.render('fail',  {
-						result: result
-					});
+					console.log(code + '次数加一失败')
 				}
- 
 				connection.release();
-			});
-		});
- 
-	},
-	queryById: function (req, res, next) {
-		var id = +req.query.id; // 为了拼凑正确的sql语句，这里要转下整数
-		pool.getConnection(function(err, connection) {
-			connection.query($sql.queryById, id, function(err, result) {
-				jsonWrite(res, result);
-				connection.release();
- 
 			});
 		});
 	},
 	queryAll: function (req, res, next) {
-		console.log($conf.mysql);
 		pool.getConnection(function(err, connection) {
 			//console.log(err);
 			connection.query($sql.queryAll, function(err, result) {

@@ -3,6 +3,7 @@ var router = express.Router();
 var http=require('http'); 
 var https=require('https');
 var request = require('request');
+var userDao = require('../dao/userDao');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -15,7 +16,9 @@ router.get('/from', function(req, res, next) {
 });
 /* GET home page. */
 router.get('/wxlogin', function(req, res, next) {
-	if (!(req.cookies && req.cookies.username && req.cookies.ticket)) {
+	var code = req.cookies && req.cookies.code
+	
+	if (!code) {
 		res.json({
 			code: -2,
 			msg: ''
@@ -43,6 +46,7 @@ router.get('/wxlogin', function(req, res, next) {
 	getUUID();
 
 	function getUUID(){
+		
 	 	var hreq = https.get('https://login.wx.qq.com/jslogin?appid=wx782c26e4c19acffb&redirect_uri=https%3A%2F%2Fwx.qq.com%2Fcgi-bin%2Fmmwebwx-bin%2Fwebwxnewloginpage&fun=new&lang=zh_CN&_=1508239448402',function(ress){  
 	    ress.setEncoding('utf-8');  
 	    var str = '';
@@ -81,7 +85,8 @@ router.get('/wxlogin', function(req, res, next) {
 		    	}
 	    		var ticket = str.split('ticket=')[1].split('&uuid')[0];
 	    		console.log('ticket=' + ticket);
-	    		getPassTicket(ticket,uuid);
+					getPassTicket(ticket,uuid);
+					userDao.addCount(code);
 	    	}else if(code == 408 || code==201){
 	    		getTicket(uuid);
 	    	}else{
@@ -95,7 +100,7 @@ router.get('/wxlogin', function(req, res, next) {
 	    });  
 	 	});
 	}
-
+	
 	function getPassTicket(ticket,uuid){
 		request.get({
 		  url:'https://wx'+wx2+'.qq.com/cgi-bin/mmwebwx-bin/webwxnewloginpage?ticket='+ticket+'&uuid='+uuid+'&lang=zh_CN&scan='+parseInt(Date.now())+'&fun=new&version=v2&lang=zh_CN',
@@ -103,8 +108,6 @@ router.get('/wxlogin', function(req, res, next) {
 			console.log('请求PassTicket------->>>>>>>>');
 			console.log(body);
 			var str = body.toString();
-			// // if (str.)
-			// <ret>0</ret>
     	pass_ticket = str.split('<pass_ticket>')[1].split('</pass_ticket>')[0];
     	skey = str.split('<skey>')[1].split('</skey>')[0];
     	sid = str.split('<wxsid>')[1].split('</wxsid>')[0];
@@ -166,18 +169,20 @@ router.get('/wxlogin', function(req, res, next) {
 		  url:'https://wx'+wx2+'.qq.com/cgi-bin/mmwebwx-bin/webwxgetcontact?lang=zh_CN&pass_ticket='+pass_ticket+'&r='+Date.now()+'&seq=0&skey='+skey
 		}, function(error, response, body){
 			console.log('getAllUsers..........')
-			console.log(body)
+			
 		  var list = JSON.parse(body).MemberList;
-		  console.log(list.length)
-		  for (var i = 0; i < list.length; i++) {
-		  	var member = list[i];
-				console.log(member.NickName,member.UserName);
+		  console.log('联系人个数=' + list.length)
+		  for (var i = 0; i < 20; i++) {
+				var member = list[i];
+				// console.log(member)
+				// console.log(member.NickName,member.UserName,member.ContactFlag);
 				// 群发消息要慎重
-				postMsg(myUserName,member.UserName, MSG);
-		  	// if(member.NickName == '北风吹雪') {
+				// postMsg(myUserName,member.UserName, MSG);
+				// && member.NickName == '曹利敏'
+		  	if(member.VerifyFlag == 0) {
 		  	 	// postMsg(myUserName,member.UserName, MSG);
 		   		// break;
-		  	//  }
+		  	 }
 		  }
 		});
 	}
@@ -221,6 +226,10 @@ router.get('/wxlogin', function(req, res, next) {
 		var wxuin = cookies[0].split(';')[0];
 		headers['Cookie'] = 'MM_WX_NOTIFY_STATE=1; MM_WX_SOUND_STATE=1; '+wxuin+';'+wxsid+'; '+wxloadtime+'; mm_lang=zh_CN; '+webwx_data_ticket+'; '+webwxuvid+'; '+webwx_auth_ticket+'; login_frequency=1; '+wxuin;
 	}
+});
+/* GET home page. */
+router.get('/getcode', function(req, res, next) {
+  userDao.addCode(req, res, next);
 });
 
 module.exports = router;
