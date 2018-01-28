@@ -27,6 +27,7 @@
       }
       if (!msg.length) {
         alert('请输入群发内容')
+        return;
       }
       Ajax('get', '/wxlogin', msg, function(data){
           console.log(data);
